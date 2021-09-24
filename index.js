@@ -1,5 +1,5 @@
 const express = require('express');
-const blogRouter = require('./router/blog');
+const blogRouter = require('.//src/routers/blogRouter');
 
 const port = 3000;
 const app = express();

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const Blog = mongoose.model('Blog', {
+//create schema for documents
+const blogSchema =new mongoose.Schema({
     title: {
         type: 'string',
     },
@@ -9,5 +10,8 @@ const Blog = mongoose.model('Blog', {
     }
     
 });
+
+//create model(collection) for db to store all documents
+const Blog=new mongoose.model("blogs",blogSchema);
 
 module.exports = Blog;
