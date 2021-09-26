@@ -1,12 +1,15 @@
 const express = require('express');
-const Blog = require('../models/blogs');
+const Blog = require('../models/blogModel');
 require('../db/connect');
+const auth= require('../middleware/auth');
 
 const router = new express.Router();
 
-router.post('/blog', async (req, res) => {
+router.post('/blog',auth, async (req, res) => {
     try {
         //console.log(req.body);
+        req.body.author = req.user._id;
+        req.body.authorName = req.user.name;
         const blog = new Blog(req.body);
         const doc = await blog.save();
         //console.log(doc);
@@ -17,30 +20,27 @@ router.post('/blog', async (req, res) => {
 });
 
 // GET localhost:300/blog
-router.get('/blog', async (req, res) => {
+router.get('/blog',auth, async (req, res) => {
     try {
-        const blogs = await Blog.find({});
-        res.status(200).send(blogs);
+        const blogs = await Blog.find({author: req.user.id});
+        res.status(200).send(blogs[0]);
     } catch (e) {
         res.status(500).send();
     }
 });
 
-router.delete('/blog/:id', async (req, res) => {
+router.delete('/blog/:id',auth, async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await Blog.findByIdAndDelete(id);
+        const result = await Blog.findOneAndDelete({id: req.params.id,author: req.user.id });
         res.status(200).send(result);
     } catch (e) {
         res.status(500).send('Unable to delete');
     }
 });
 
-router.patch('/blog/:id', async (req, res) => {
+router.patch('/blog/:id',auth, async (req, res) => {
     try {
-        const id = req.params.id;
-        console.log(req.body);
-        const blog = await Blog.findByIdAndUpdate(id, req.body);
+        const blog = await Blog.findOneAndUpdate({ id: req.params.id, author: req.user.id }, req.body, {new: true});
         if (!blog) {
             return res.status(404).send();
         }
